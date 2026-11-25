@@ -80,9 +80,11 @@ export function StatCard({
 export function BarChart({
   title,
   data,
+  unit = "days",
 }: {
   title: string;
   data: { date: string; count: number }[];
+  unit?: "days" | "hours";
 }) {
   const max = Math.max(1, ...data.map((d) => d.count));
   const total = data.reduce((a, d) => a + d.count, 0);
@@ -92,14 +94,14 @@ export function BarChart({
       <div className="flex items-baseline justify-between">
         <h3 className="text-sm font-medium">{title}</h3>
         <span className="text-xs text-muted-foreground">
-          {total.toLocaleString("en-IN")} in {data.length} days
+          {total.toLocaleString("en-IN")} in {data.length} {unit}
         </span>
       </div>
       <svg
         viewBox="0 0 100 32"
         preserveAspectRatio="none"
         role="img"
-        aria-label={`${title}: ${total} in the last ${data.length} days`}
+        aria-label={`${title}: ${total} in the last ${data.length} ${unit}`}
         className="mt-3 h-24 w-full"
       >
         {data.map((d, i) => {

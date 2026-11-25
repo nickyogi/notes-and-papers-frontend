@@ -12,6 +12,7 @@ interface Analytics {
   totals: Record<string, number>;
   sessions: number;
   daily: { day: string; type: string; n: number }[];
+  hourly?: { hour: string; type: string; n: number }[];
   top_pages: { path: string; n: number }[];
   top_searches: AdminTopSearch[];
   top_papers: AdminTopDownload[];
@@ -24,6 +25,18 @@ function series(a: Analytics, type: string) {
   for (let i = a.days - 1; i >= 0; i--) {
     const day = new Date(Date.now() - i * 86_400_000).toISOString().slice(0, 10);
     out.push({ date: day, count: map.get(day) ?? 0 });
+  }
+  return out;
+}
+
+/** The last 24 hours, one bar per hour, in India time (the API groups by India time too). */
+function hourlySeries(a: Analytics, type: string) {
+  const map = new Map((a.hourly ?? []).filter((h) => h.type === type).map((h) => [h.hour, h.n]));
+  const out: { date: string; count: number }[] = [];
+  for (let i = 23; i >= 0; i--) {
+    const iso = new Date(Date.now() + 19_800_000 - i * 3_600_000).toISOString();
+    const key = `${iso.slice(0, 10)} ${iso.slice(11, 13)}:00`;
+    out.push({ date: key, count: map.get(key) ?? 0 });
   }
   return out;
 }
@@ -58,7 +71,7 @@ function List({
 
 export default async function AnalyticsPage(props: PageProps<"/admin/analytics">) {
   if ((await getMe())?.role !== "admin") return <NoPermission />;
-  const days = Number(enumParam((await props.searchParams).days, ["7", "30", "90"] as const, "30"));
+  const days = Number(enumParam((await props.searchParams).days, ["1", "7", "30", "90"] as const, "30"));
   const a = await authedFetch<Analytics>(
     "/admin/analytics",
     { query: { days } },
@@ -73,14 +86,14 @@ export default async function AnalyticsPage(props: PageProps<"/admin/analytics">
         description="Page views, searches, resource views and the download funnel, from the site's own event log."
         actions={
           <nav aria-label="Period" className="flex gap-1 text-sm">
-            {[7, 30, 90].map((d) => (
+            {[1, 7, 30, 90].map((d) => (
               <Link
                 key={d}
                 href={`/admin/analytics?days=${d}`}
                 aria-current={d === days ? "page" : undefined}
                 className={`rounded-md px-3 py-1.5 ${d === days ? "bg-primary text-primary-foreground" : "border hover:bg-muted"}`}
               >
-                {d}d
+                {d === 1 ? "24h" : `${d}d`}
               </Link>
             ))}
           </nav>
@@ -102,9 +115,19 @@ export default async function AnalyticsPage(props: PageProps<"/admin/analytics">
       </div>
 
       <div className="mt-4 grid gap-4 lg:grid-cols-3">
-        <BarChart title="Page views" data={series(a, "page_view")} />
-        <BarChart title="Searches" data={series(a, "search")} />
-        <BarChart title="Downloads" data={series(a, "download_success")} />
+        {days === 1 ? (
+          <>
+            <BarChart title="Page views" unit="hours" data={hourlySeries(a, "page_view")} />
+            <BarChart title="Searches" unit="hours" data={hourlySeries(a, "search")} />
+            <BarChart title="Downloads" unit="hours" data={hourlySeries(a, "download_success")} />
+          </>
+        ) : (
+          <>
+            <BarChart title="Page views" data={series(a, "page_view")} />
+            <BarChart title="Searches" data={series(a, "search")} />
+            <BarChart title="Downloads" data={series(a, "download_success")} />
+          </>
+        )}
       </div>
 
       <section className="mt-4 border-2 border-border bg-card p-4">

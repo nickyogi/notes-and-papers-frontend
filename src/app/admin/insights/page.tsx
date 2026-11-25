@@ -40,7 +40,7 @@ function List({
 
 export default async function InsightsPage(props: PageProps<"/admin/insights">) {
   if ((await getMe())?.role !== "admin") return <NoPermission />;
-  const days = Number(enumParam((await props.searchParams).days, ["7", "30", "90"] as const, "30"));
+  const days = Number(enumParam((await props.searchParams).days, ["1", "7", "30", "90"] as const, "30"));
   const [top, gaps, dl] = await Promise.all([
     authedFetch<AdminTopSearch[]>("/admin/insights/searches", { query: { days, limit: 15 } }, "/admin/insights"),
     authedFetch<AdminTopSearch[]>(

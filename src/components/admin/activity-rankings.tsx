@@ -15,7 +15,7 @@ export function ActivityRankings({
     <div className="grid min-w-0 gap-4 lg:grid-cols-2">
       <section className="min-w-0 border-2 border-border bg-card p-4 shadow-hard-sm">
         <h2 className="text-xl font-black uppercase">Most downloaded papers</h2>
-        <p className="mt-1 text-xs text-muted-foreground">Last {days} days · PDFs served, excluding previews</p>
+        <p className="mt-1 text-xs text-muted-foreground">{days === 1 ? "Last 24 hours" : `Last ${days} days`} · PDFs served, excluding previews</p>
         {downloads.length === 0 ? (
           <p className="py-6 text-sm text-muted-foreground">No paper downloads recorded for this period.</p>
         ) : (
@@ -37,7 +37,7 @@ export function ActivityRankings({
       </section>
       <section className="min-w-0 border-2 border-border bg-card p-4 shadow-hard-sm">
         <h2 className="text-xl font-black uppercase">Most searched terms</h2>
-        <p className="mt-1 text-xs text-muted-foreground">Last {days} days · Matching case and spacing grouped together</p>
+        <p className="mt-1 text-xs text-muted-foreground">{days === 1 ? "Last 24 hours" : `Last ${days} days`} · Matching case and spacing grouped together</p>
         {searches.length === 0 ? (
           <p className="py-6 text-sm text-muted-foreground">No search terms recorded for this period.</p>
         ) : (

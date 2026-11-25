@@ -4,7 +4,6 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { buttonVariants } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import { useMe } from "@/hooks/use-me";
 import { track } from "@/lib/track";
 import { cn } from "@/lib/utils";
 
@@ -22,16 +21,12 @@ export function DownloadLink({
   href: string;
   children: React.ReactNode;
 }) {
-  const { data: me } = useMe();
   const [busy, setBusy] = useState(false);
   const [slow, setSlow] = useState(false);
 
   async function getPdf(e: React.MouseEvent<HTMLAnchorElement>) {
     track("download_attempt", { paper_slug: slug });
-    if (!me) {
-      toast.info("Log in to download this paper. We will bring you back here.");
-      return; // the link itself takes them to the login page
-    }
+    // Signed out visitors get their first free downloads too; the server sends them to the login page once those are used.
     e.preventDefault();
     if (busy) return;
     setBusy(true);
@@ -40,7 +35,8 @@ export function DownloadLink({
     try {
       const res = await fetch(href, { cache: "no-store", credentials: "same-origin" });
       if (res.redirected && new URL(res.url).pathname.startsWith("/login")) {
-        window.location.assign(res.url); // the session ended: sign in again, then back to this paper
+        track("login_required", { paper_slug: slug });
+        window.location.assign(res.url); // free downloads used up or the session ended: sign in, then back to this paper
         return;
       }
       if (res.status === 404)
@@ -56,7 +52,14 @@ export function DownloadLink({
       a.click();
       a.remove();
       setTimeout(() => URL.revokeObjectURL(url), 30_000);
-      toast.success("Your PDF has been downloaded");
+      const left = res.headers.get("x-free-downloads-left");
+      toast.success(
+        left === null
+          ? "Your PDF has been downloaded"
+          : left === "0"
+            ? "Downloaded. That was your last free download. Log in to keep downloading."
+            : `Downloaded. ${left} free download left. Log in for unlimited downloads.`,
+      );
     } catch (err) {
       toast.error(
         err instanceof Error ? err.message : "We could not get the PDF just now. Please try again.",

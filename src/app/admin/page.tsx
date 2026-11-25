@@ -11,7 +11,7 @@ export default async function AdminOverviewPage(props: PageProps<"/admin">) {
   const me = await getMe();
   if (me?.role === "moderator") redirect("/admin/review");
   if (me?.role !== "admin") return <NoPermission />;
-  const days = Number(enumParam((await props.searchParams).days, ["7", "30", "90"] as const, "30"));
+  const days = Number(enumParam((await props.searchParams).days, ["1", "7", "30", "90"] as const, "30"));
   const o = await authedFetch<AdminOverview>("/admin/overview", { query: { days } }, "/admin");
   const k = o.kpis;
 
@@ -89,10 +89,10 @@ export default async function AdminOverviewPage(props: PageProps<"/admin">) {
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 id="popular-activity" className="text-xs font-black uppercase tracking-wider text-muted-foreground">Popular activity</h2>
           <nav aria-label="Activity period" className="flex gap-1 text-sm">
-            {[7, 30, 90].map((period) => (
+            {[1, 7, 30, 90].map((period) => (
               <Link key={period} href={`/admin?days=${period}`} aria-current={period === days ? "page" : undefined}
                 className={`inline-flex min-h-10 items-center border-2 border-border px-3 font-bold ${period === days ? "bg-primary text-primary-foreground" : "bg-card hover:bg-muted"}`}>
-                {period} days
+                {period === 1 ? "24 hours" : `${period} days`}
               </Link>
             ))}
           </nav>

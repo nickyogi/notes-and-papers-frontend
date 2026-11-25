@@ -48,6 +48,7 @@ export function DownloadManager({
       });
 
       if (res.redirected && new URL(res.url).pathname.startsWith("/login")) {
+        track("login_required", { paper_slug: paper.slug });
         window.location.assign(res.url);
         return;
       }
@@ -78,7 +79,14 @@ export function DownloadManager({
       setDownloaded(true);
       setProgress(100);
       setStatusMessage("Verified copy saved to your device!");
-      toast.success("Download started");
+      const left = res.headers.get("x-free-downloads-left");
+      toast.success(
+        left === null
+          ? "Download started"
+          : left === "0"
+            ? "Download started. That was your last free download. Log in to keep downloading."
+            : `Download started. ${left} free download left. Log in for unlimited downloads.`,
+      );
     } catch (err) {
       const message = err instanceof Error ? err.message : "Download failed. Please try again.";
       setDownloadError(message);
