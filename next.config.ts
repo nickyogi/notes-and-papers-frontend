@@ -93,6 +93,17 @@ const nextConfig: NextConfig = {
           },
         ],
       },
+      // Icons and the manifest are asked for on every visit. Without a lifetime the browser re-checks each one every time
+      // (a "304" request that still counts as a CDN request), which was ~30% of all requests. public/_headers does this on
+      // Cloudflare only; Vercel needs it here.
+      {
+        source: "/:file(favicon.ico|icon.png|icon-192.png|apple-touch-icon.png|og-default.png)",
+        headers: [{ key: "Cache-Control", value: "public, max-age=2592000, stale-while-revalidate=86400" }],
+      },
+      {
+        source: "/favicon/:path*",
+        headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
+      },
       {
         source: "/papers/:path*",
         headers: [

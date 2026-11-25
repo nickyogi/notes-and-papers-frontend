@@ -290,6 +290,7 @@ export async function PaperPage({
               {ready ? (
                 <Link
                   href={routes.download(slug)}
+                  prefetch={false}
                   className="inline-flex h-13 sm:h-14 w-full items-center justify-center gap-3 border-2 border-border bg-primary px-7 text-sm sm:text-base font-bold uppercase tracking-wider text-primary-foreground shadow-hard transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-hard-lg hover:bg-primary/95 active:translate-x-0.5 active:translate-y-0.5"
                 >
                   <Download className="size-5 shrink-0" aria-hidden="true" />
