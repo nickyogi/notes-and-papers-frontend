@@ -106,6 +106,8 @@ const nextConfig: NextConfig = {
       },
       {
         source: "/papers/:path*",
+        // Page-data (RSC) requests must never get these lifetimes: Cloudflare ignores Vary and would hand the data to browsers asking for the page.
+        missing: [{ type: "header", key: "rsc" }],
         headers: [
           { key: "CDN-Cache-Control", value: "public, s-maxage=2592000, stale-while-revalidate=86400" },
           { key: "Cloudflare-CDN-Cache-Control", value: "public, s-maxage=2592000, stale-while-revalidate=86400" },
@@ -113,6 +115,8 @@ const nextConfig: NextConfig = {
       },
       {
         source: "/exams/:path*",
+        // Page-data (RSC) requests must never get these lifetimes: Cloudflare ignores Vary and would hand the data to browsers asking for the page.
+        missing: [{ type: "header", key: "rsc" }],
         headers: [
           { key: "CDN-Cache-Control", value: "public, s-maxage=604800, stale-while-revalidate=86400" },
           { key: "Cloudflare-CDN-Cache-Control", value: "public, s-maxage=604800, stale-while-revalidate=86400" },
@@ -120,6 +124,8 @@ const nextConfig: NextConfig = {
       },
       {
         source: "/universities/:path*",
+        // Page-data (RSC) requests must never get these lifetimes: Cloudflare ignores Vary and would hand the data to browsers asking for the page.
+        missing: [{ type: "header", key: "rsc" }],
         headers: [
           { key: "CDN-Cache-Control", value: "public, s-maxage=604800, stale-while-revalidate=86400" },
           { key: "Cloudflare-CDN-Cache-Control", value: "public, s-maxage=604800, stale-while-revalidate=86400" },
@@ -127,6 +133,8 @@ const nextConfig: NextConfig = {
       },
       {
         source: "/rajasthanboard/:path*",
+        // Page-data (RSC) requests must never get these lifetimes: Cloudflare ignores Vary and would hand the data to browsers asking for the page.
+        missing: [{ type: "header", key: "rsc" }],
         headers: [
           { key: "CDN-Cache-Control", value: "public, s-maxage=604800, stale-while-revalidate=86400" },
           { key: "Cloudflare-CDN-Cache-Control", value: "public, s-maxage=604800, stale-while-revalidate=86400" },
@@ -134,6 +142,8 @@ const nextConfig: NextConfig = {
       },
       {
         source: "/categories/:path*",
+        // Page-data (RSC) requests must never get these lifetimes: Cloudflare ignores Vary and would hand the data to browsers asking for the page.
+        missing: [{ type: "header", key: "rsc" }],
         headers: [
           { key: "CDN-Cache-Control", value: "public, s-maxage=604800, stale-while-revalidate=86400" },
           { key: "Cloudflare-CDN-Cache-Control", value: "public, s-maxage=604800, stale-while-revalidate=86400" },
@@ -141,6 +151,8 @@ const nextConfig: NextConfig = {
       },
       {
         source: "/boards",
+        // Page-data (RSC) requests must never get these lifetimes: Cloudflare ignores Vary and would hand the data to browsers asking for the page.
+        missing: [{ type: "header", key: "rsc" }],
         headers: [
           { key: "CDN-Cache-Control", value: "public, s-maxage=604800, stale-while-revalidate=86400" },
           { key: "Cloudflare-CDN-Cache-Control", value: "public, s-maxage=604800, stale-while-revalidate=86400" },
@@ -148,6 +160,8 @@ const nextConfig: NextConfig = {
       },
       {
         source: "/notes/:path*",
+        // Page-data (RSC) requests must never get these lifetimes: Cloudflare ignores Vary and would hand the data to browsers asking for the page.
+        missing: [{ type: "header", key: "rsc" }],
         headers: [
           { key: "CDN-Cache-Control", value: "public, s-maxage=604800, stale-while-revalidate=86400" },
           { key: "Cloudflare-CDN-Cache-Control", value: "public, s-maxage=604800, stale-while-revalidate=86400" },
