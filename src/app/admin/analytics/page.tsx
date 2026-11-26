@@ -14,6 +14,7 @@ interface Analytics {
   daily: { day: string; type: string; n: number }[];
   hourly?: { hour: string; type: string; n: number }[];
   top_pages: { path: string; n: number }[];
+  top_sources?: { src: string; n: number }[];
   top_searches: AdminTopSearch[];
   top_papers: AdminTopDownload[];
   funnel: { step: string; n: number }[];
@@ -150,6 +151,20 @@ export default async function AnalyticsPage(props: PageProps<"/admin/analytics">
 
       <div className="mt-4">
         <ActivityRankings downloads={a.top_papers} searches={a.top_searches} days={days} />
+      </div>
+      <div className="mt-4">
+        <List
+          title="Where visits come from"
+          rows={(a.top_sources ?? []).map((s) => {
+            const total = (a.top_sources ?? []).reduce((n, x) => n + x.n, 0) || 1;
+            return {
+              key: s.src,
+              label: s.src,
+              value: `${s.n.toLocaleString("en-IN")} · ${Math.round((s.n / total) * 100)}%`,
+            };
+          })}
+          empty="Starts filling after the next deploy: each visit records the site or link it came from. WhatsApp usually shows as direct."
+        />
       </div>
       <div className="mt-4">
         <List

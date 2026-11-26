@@ -19,6 +19,42 @@ function sessionId(): string | undefined {
   }
 }
 
+const LANDED_KEY = "np_landed";
+const SOURCES: [RegExp, string][] = [
+  [/(^|\.)google\./, "google"],
+  [/(^|\.)bing\.com$/, "bing"],
+  [/duckduckgo\.com$/, "duckduckgo"],
+  [/(^|\.)yahoo\./, "yahoo"],
+  [/(^|\.)(chatgpt\.com|openai\.com)$/, "chatgpt"],
+  [/perplexity\.ai$/, "perplexity"],
+  [/(^|\.)(t\.me|telegram\.(me|org))$/, "telegram"],
+  [/(^|\.)(wa\.me|whatsapp\.com)$/, "whatsapp"],
+  [/instagram\.com$/, "instagram"],
+  [/(^|\.)(facebook\.com|fb\.com|fb\.me)$/, "facebook"],
+  [/(^|\.)(youtube\.com|youtu\.be)$/, "youtube"],
+  [/(^|\.)(twitter\.com|x\.com|t\.co)$/, "x"],
+  [/reddit\.com$/, "reddit"],
+  [/(^|\.)quora\.com$/, "quora"],
+];
+
+/** Where this visit came from: an explicit ?utm_source=, else the referring site, else "direct". Only the site name is kept. */
+function visitSource(): string {
+  try {
+    const utm = new URLSearchParams(window.location.search).get("utm_source");
+    const raw = utm
+      ? utm.toLowerCase()
+      : document.referrer
+        ? new URL(document.referrer).hostname.toLowerCase()
+        : "";
+    if (!raw) return "direct";
+    if (raw === window.location.hostname) return "internal";
+    for (const [re, name] of SOURCES) if (re.test(raw)) return name;
+    return raw.replace(/^www\./, "").slice(0, 60);
+  } catch {
+    return "direct";
+  }
+}
+
 type QueuedEvent = {
   type: TrackType;
   path: string;
@@ -70,13 +106,19 @@ export function track(
   } = {},
 ) {
   try {
+    let meta = extra.meta;
+    // The first page view of a visit also records where the visitor came from.
+    if (type === "page_view" && !sessionStorage.getItem(LANDED_KEY)) {
+      sessionStorage.setItem(LANDED_KEY, "1");
+      meta = { ...meta, src: visitSource() };
+    }
     queue.push({
       type,
       path: extra.path ?? window.location.pathname,
       session_id: sessionId(),
       paper_slug: extra.paper_slug,
       query: extra.query,
-      meta: extra.meta,
+      meta,
     });
     if (!listening) {
       listening = true;
